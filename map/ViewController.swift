@@ -8,18 +8,23 @@
 
 import UIKit
 import MapKit
+import CoreLocation
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, CLLocationManagerDelegate{
 
     @IBOutlet weak var mapView: MKMapView!
+    var locationManager = CLLocationManager()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
-        mapView.mapType = MKMapType.standard
+        
+        locationManager.delegate = self
         
         
+        
+        //pin 꼽기
         let anno01 = MKPointAnnotation()
         anno01.coordinate.latitude = 35.164873
         anno01.coordinate.longitude = 129.071415
@@ -40,7 +45,25 @@ class ViewController: UIViewController {
         anno03.title = "롯데백화점"
         anno03.subtitle = "부산본점"
         
-        mapView.showAnnotations([anno01, anno02, anno03], animated: true)
+        mapView.addAnnotations([anno01, anno02, anno03])
+        //현재 나의 위치 트랙킹
+        locationManager.startUpdatingLocation()
+        locationManager.requestAlwaysAuthorization()
+        locationManager.desiredAccuracy = kCLLocationAccuracyBestForNavigation
+        mapView.showsUserLocation = true
+        
+    }
+    
+    //CLLocationManagerDelegete 메소드
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations location:[CLLocation]){
+        let userLocation = location[0]
+        print(userLocation)
+        
+        let center = CLLocationCoordinate2D(latitude: userLocation.coordinate.latitude, longitude:userLocation.coordinate.longitude)
+        let span = MKCoordinateSpan(latitudeDelta: 0.04, longitudeDelta:0.04)
+        let region = MKCoordinateRegion(center : center, span: span)
+        mapView.setRegion(region, animated: true)
+        
     }
     
     }
